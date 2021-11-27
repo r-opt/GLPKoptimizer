@@ -12,13 +12,13 @@ setClass("GLPK_optimizer",
 
 #' A GLPK Optimizer
 #'
-#' @param control a list of controls
+#' @param presolve a length 1 logical if presolve should be used.
 #'
 #' @include optimizer.R
 #' @export
-GLPK_optimizer <- function(control = list(presolve = FALSE)) {
-  stopifnot(is.list(control))
-  glpk_ptr <- glpk_init()
+GLPK_optimizer <- function(presolve = FALSE) {
+  stopifnot(is.logical(presolve), !is.na(presolve), length(presolve) == 1)
+  glpk_ptr <- glpk_init(presolve)
   new("GLPK_optimizer", ptr = glpk_ptr)
 }
 
@@ -130,9 +130,6 @@ set_objective_sense <- function(optimizer, sense = "min") {
 optimize <- function(optimizer) {
   stopifnot(inherits(optimizer, "GLPK_optimizer"))
   glpk_solve_simplex(optimizer@ptr)
-  # if (presolve) {
-  # TODO: do it
-  # }
   glpk_solve_MIP(optimizer@ptr)
 }
 

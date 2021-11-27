@@ -4,10 +4,10 @@
 \alias{GLPK_optimizer}
 \title{A GLPK Optimizer}
 \usage{
-GLPK_optimizer(control = list(presolve = FALSE))
+GLPK_optimizer(presolve = FALSE)
 }
 \arguments{
-\item{control}{a list of controls}
+\item{presolve}{a length 1 logical if presolve should be used.}
 }
 \description{
 A GLPK Optimizer

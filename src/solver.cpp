@@ -2,16 +2,13 @@
 #include "solver.h"
 using namespace cpp11;
 
-glpk_solver::glpk_solver() {
+glpk_solver::glpk_solver(const bool presolve) {
   glp_ptr = glp_create_prob();
   glp_init_iocp(&glp_mip_parameters);
   glp_init_smcp(&glp_simplex_parameters);
   glp_mip_parameters.cb_func = glpk_solver::callback;
   glp_mip_parameters.cb_info = this;
-}
-
-glpk_solver::glpk_solver(glp_prob* lp) {
-  glp_ptr = lp;
+  glp_simplex_parameters.presolve = presolve ? GLP_ON : GLP_OFF;
 }
 
 glpk_solver::~glpk_solver() {
@@ -63,10 +60,10 @@ void glpk_solver::set_irowgen_callback(cpp11::function fun) {
 }
 
 void glpk_solver::callback(glp_tree *tree, void *info) {
-  cpp11::check_user_interrupt(); // TODO: might make everything slower
   if (glp_ios_reason(tree) != GLP_IROWGEN) {
     return;
   }
+  cpp11::check_user_interrupt(); // TODO: might make everything slower
   glpk_solver* solver = static_cast<glpk_solver*>(info);
   if (solver->r_irowgen_callback) {
     const auto& fun = solver->r_irowgen_callback.value();
