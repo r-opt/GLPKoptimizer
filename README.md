@@ -35,7 +35,7 @@ solver, while still being able to use `rmpk`’s modelling features.
 ``` r
 library(rmpk)
 library(GLPKoptimizer)
-solver <- GLPK_optimizer()
+solver <- GLPK_optimizer(presolve = TRUE)
 model <- optimization_model(solver)
 x <- model$add_variable("x", type = "binary", i = 1:10)
 model$set_objective(sum_expr(x[i], i = 1:10), sense = "max")
