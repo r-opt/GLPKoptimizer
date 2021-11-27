@@ -60,10 +60,10 @@ void glpk_solver::set_irowgen_callback(cpp11::function fun) {
 }
 
 void glpk_solver::callback(glp_tree *tree, void *info) {
-  cpp11::check_user_interrupt(); // TODO: might make everything slower
   if (glp_ios_reason(tree) != GLP_IROWGEN) {
     return;
   }
+  cpp11::check_user_interrupt(); // TODO: might make everything slower
   glpk_solver* solver = static_cast<glpk_solver*>(info);
   if (solver->r_irowgen_callback) {
     const auto& fun = solver->r_irowgen_callback.value();
