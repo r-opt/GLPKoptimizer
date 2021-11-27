@@ -22,7 +22,8 @@ Remotes:
     r-opt/rmpk
 Suggests: 
     testthat (>= 3.0.0),
-    rmpk
+    rmpk,
+    covr
 Config/testthat/edition: 3
 Collate: 
     'cpp11.R'
