@@ -5,8 +5,7 @@
 
 class glpk_solver {
 public:
-  glpk_solver();
-  glpk_solver(glp_prob* lp);
+  glpk_solver(const bool presolve);
   ~glpk_solver();
   int add_cols(int ncols);
   int add_rows(int nrows);

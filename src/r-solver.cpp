@@ -3,8 +3,8 @@
 using namespace cpp11;
 
 [[cpp11::register]]
-external_pointer<glpk_solver> glpk_init() {
-  external_pointer<glpk_solver> ptr(new glpk_solver, true);
+external_pointer<glpk_solver> glpk_init(const bool presolve = false) {
+  external_pointer<glpk_solver> ptr(new glpk_solver(presolve), true);
   return ptr;
 }
 

@@ -6,10 +6,10 @@
 #include <R_ext/Visibility.h>
 
 // r-solver.cpp
-external_pointer<glpk_solver> glpk_init();
-extern "C" SEXP _GLPKoptimizer_glpk_init() {
+external_pointer<glpk_solver> glpk_init(const bool presolve);
+extern "C" SEXP _GLPKoptimizer_glpk_init(SEXP presolve) {
   BEGIN_CPP11
-    return cpp11::as_sexp(glpk_init());
+    return cpp11::as_sexp(glpk_init(cpp11::as_cpp<cpp11::decay_t<const bool>>(presolve)));
   END_CPP11
 }
 // r-solver.cpp
@@ -156,7 +156,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GLPKoptimizer_glpk_get_mip_col_val",      (DL_FUNC) &_GLPKoptimizer_glpk_get_mip_col_val,      2},
     {"_GLPKoptimizer_glpk_get_num_cols",         (DL_FUNC) &_GLPKoptimizer_glpk_get_num_cols,         1},
     {"_GLPKoptimizer_glpk_get_num_rows",         (DL_FUNC) &_GLPKoptimizer_glpk_get_num_rows,         1},
-    {"_GLPKoptimizer_glpk_init",                 (DL_FUNC) &_GLPKoptimizer_glpk_init,                 0},
+    {"_GLPKoptimizer_glpk_init",                 (DL_FUNC) &_GLPKoptimizer_glpk_init,                 1},
     {"_GLPKoptimizer_glpk_mip_obj_val",          (DL_FUNC) &_GLPKoptimizer_glpk_mip_obj_val,          1},
     {"_GLPKoptimizer_glpk_mip_status",           (DL_FUNC) &_GLPKoptimizer_glpk_mip_status,           1},
     {"_GLPKoptimizer_glpk_set_col_bnd",          (DL_FUNC) &_GLPKoptimizer_glpk_set_col_bnd,          5},

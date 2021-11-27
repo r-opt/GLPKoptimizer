@@ -2,16 +2,13 @@
 #include "solver.h"
 using namespace cpp11;
 
-glpk_solver::glpk_solver() {
+glpk_solver::glpk_solver(const bool presolve) {
   glp_ptr = glp_create_prob();
   glp_init_iocp(&glp_mip_parameters);
   glp_init_smcp(&glp_simplex_parameters);
   glp_mip_parameters.cb_func = glpk_solver::callback;
   glp_mip_parameters.cb_info = this;
-}
-
-glpk_solver::glpk_solver(glp_prob* lp) {
-  glp_ptr = lp;
+  glp_simplex_parameters.presolve = presolve ? GLP_ON : GLP_OFF;
 }
 
 glpk_solver::~glpk_solver() {

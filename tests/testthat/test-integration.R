@@ -55,3 +55,14 @@ test_that("bounds and equality constraints", {
   res <- res[order(res$i), ]
   expect_equal(res$value, c(rep.int(0, 9), 1))
 })
+
+test_that("presolve can be used", {
+  solver <- GLPK_optimizer(presolve = TRUE)
+  model <- rmpk::optimization_model(solver)
+  x <- model$add_variable("x", type = "integer")
+  model$set_objective(x)
+  model$add_constraint(x >= 0)
+  model$optimize()
+  res <- model$get_variable_value(x)
+  expect_equal(res, 0)
+})
