@@ -130,9 +130,6 @@ set_objective_sense <- function(optimizer, sense = "min") {
 optimize <- function(optimizer) {
   stopifnot(inherits(optimizer, "GLPK_optimizer"))
   glpk_solve_simplex(optimizer@ptr)
-  # if (presolve) {
-  # TODO: do it
-  # }
   glpk_solve_MIP(optimizer@ptr)
 }
 
