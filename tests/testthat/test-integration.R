@@ -18,6 +18,20 @@ test_that("a first example works", {
   expect_s4_class(model$termination_status(), "MOI_termination_status_code")
 })
 
+test_that("we can get the value of the relaxation", {
+  solver <- GLPK_optimizer()
+  model <- rmpk::optimization_model(solver)
+  x <- model$add_variable("x", type = "binary", i = 1:10)
+  model$set_objective(rmpk::sum_expr(x[i], i = 1:10), sense = "max")
+  model$add_constraint(rmpk::sum_expr(x[i], i = 1:10) <= 7.5)
+  model$optimize()
+  values <- vapply(1:10, function(i) {
+    # in GLPK you can only access the values of the relaxation
+    glpk_get_col_prim(solver, x[i])
+  }, numeric(1L))
+  expect_equal(sum(values), 7.5)
+})
+
 test_that("register a callback", {
   solver <- GLPK_optimizer()
   model <- rmpk::optimization_model(solver)
@@ -65,4 +79,24 @@ test_that("presolve can be used", {
   model$optimize()
   res <- model$get_variable_value(x)
   expect_equal(res, 0)
+})
+
+test_that("bounds are used correctly", {
+  solver <- GLPK_optimizer(presolve = FALSE)
+  model <- rmpk::optimization_model(solver)
+  x <- model$add_variable("x", type = "integer", lb = 0)
+  model$set_objective(x, "min")
+  model$optimize()
+  expect_equal(model$termination_status(), MOI_OPTIMAL)
+})
+
+
+test_that("fixec col bounds work", {
+  solver <- GLPK_optimizer(presolve = FALSE)
+  model <- rmpk::optimization_model(solver)
+  x <- model$add_variable("x", type = "integer", lb = 5, ub = 5)
+  model$set_objective(x, "min")
+  model$optimize()
+  expect_equal(model$termination_status(), MOI_OPTIMAL)
+  expect_equal(model$objective_value(), 5)
 })
