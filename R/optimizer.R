@@ -45,18 +45,11 @@ glpk_get_col_prim <- function(optimizer, variable) {
   glpk_solver_get_col_prim(optimizer@ptr, variable@variable@value)
 }
 
-add_variable <- function(optimizer, type, lower_bound = -Inf, upper_bound = Inf) {
+add_variable <- function(optimizer, type) {
   stopifnot(inherits(optimizer, "GLPK_optimizer"))
   column_idx <- glpk_add_cols(optimizer@ptr, 1L)
   type <- rmpk_col_type_to_glpk(type)
   glpk_set_col_kind(optimizer@ptr, column_idx, type)
-  if (is.finite(lower_bound) && is.finite(upper_bound)) {
-    glpk_set_col_bnd(optimizer@ptr, column_idx, glpkAPI::GLP_DB, lower_bound, upper_bound)
-  } else if (is.finite(lower_bound)) {
-    glpk_set_col_bnd(optimizer@ptr, column_idx, glpkAPI::GLP_LO, lower_bound, 0)
-  } else if (is.finite(upper_bound)) {
-    glpk_set_col_bnd(optimizer@ptr, column_idx, glpkAPI::GLP_UP, 0, upper_bound)
-  }
   column_idx
 }
 
@@ -102,14 +95,21 @@ set_variable_type <- function(optimizer, variable_index, type) {
 
 set_variable_lb <- function(optimizer, variable_index, value) {
   stopifnot(inherits(optimizer, "GLPK_optimizer"))
-  # TODO: check if that overwrites the ub
   glpk_set_col_bnd(optimizer@ptr, variable_index, glpkAPI::GLP_LO, value, 0)
 }
 
 set_variable_ub <- function(optimizer, variable_index, value) {
   stopifnot(inherits(optimizer, "GLPK_optimizer"))
-  # TODO: check if that overwrites the lb
   glpk_set_col_bnd(optimizer@ptr, variable_index, glpkAPI::GLP_UP, 0, value)
+}
+
+set_variable_lb_ub <- function(optimizer, variable_index, lower, upper) {
+  type <- if (lower == upper) {
+    glpkAPI::GLP_FX
+  } else {
+    glpkAPI::GLP_DB
+  }
+  glpk_set_col_bnd(optimizer@ptr, variable_index, type, lower, upper)
 }
 
 set_linear_objective <- function(optimizer, linear_expr) {
@@ -262,14 +262,14 @@ setMethod("moi_add_constraint", signature("GLPK_optimizer", "MOI_single_variable
 #' @rdname GLPK_optimizer-class
 setMethod("moi_add_constraint", signature("GLPK_optimizer", "MOI_single_variable", "MOI_zero_one_set"), function(model, func, set) {
   set_variable_type(model, func@variable@value, "binary")
+  set_variable_lb_ub(model, func@variable@value, 0, 1)
   new("MOI_constraint_index", value = -1) # TODO
 })
 
 #' @export
 #' @rdname GLPK_optimizer-class
 setMethod("moi_add_constraint", signature("GLPK_optimizer", "MOI_single_variable", "MOI_interval_set"), function(model, func, set) {
-  set_variable_lb(model, func@variable@value, set@lower)
-  set_variable_ub(model, func@variable@value, set@upper)
+  set_variable_lb_ub(model, func@variable@value, set@lower, set@upper)
   new("MOI_constraint_index", value = -1) # TODO
 })
 
